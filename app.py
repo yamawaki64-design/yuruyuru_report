@@ -328,8 +328,8 @@ if "hisohiso_msg" not in st.session_state:
 # ---- ヒソヒソくんヘッダー ----
 st.markdown("""
 <div class="hisohiso-header">
-    あの、、さっきの会議でメモされてましたよね。<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;僕のほうでまとめますので、そのままコピペしてもらっていいですか？
+    あの...さっきの会議でメモされてましたよね？<br>
+    僕のほうでまとめますので、メモをそのままコピペしてもらっていいですか？
 </div>
 """, unsafe_allow_html=True)
 
@@ -419,8 +419,8 @@ with col1:
         copy_html = build_copy_button_html(build_copy_text(fields, result))
         components.html(copy_html, height=50)
     else:
-        st.button("クリップボードにコピー", disabled=True, use_container_width=True)
+        st.button("クリップボードにコピーしとく", disabled=True, use_container_width=True)
 
 with col2:
-    if st.button("プルプル部長に見せてみる", disabled=not st.session_state.get("formatted_result"), use_container_width=True):
+    if st.button("プルプル部長に見せてみる🐼", disabled=not st.session_state.get("formatted_result"), use_container_width=True):
         st.switch_page("pages/bucho.py")
