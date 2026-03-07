@@ -1,0 +1,17 @@
+{
+  "template_name": "商談レコード",
+  "fields": [
+    { "name": "会社名",        "required": true },
+    { "name": "担当者名",       "required": true },
+    { "name": "商談フェーズ",   "required": true,
+      "options": ["初回接触", "提案中", "見積提出", "クローズ"] },
+    { "name": "予算感",         "required": false },
+    { "name": "導入希望時期",   "required": false },
+    { "name": "確度",           "required": false,
+      "options": ["高", "中", "低"],
+      "note": "メモに明記されている場合のみ入力。不明な場合は必ず空文字" },
+    { "name": "競合情報",       "required": false },
+    { "name": "次のアクション", "required": true },
+    { "name": "備考",           "required": false }
+  ]
+}
