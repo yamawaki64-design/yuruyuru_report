@@ -111,6 +111,11 @@ header[data-testid="stHeader"] { display: none; }
     box-shadow: 2px 4px 10px rgba(0,0,0,0.08) !important;
     font-size: 14px !important;
     color: #333 !important;
+    caret-color: #333 !important;
+}
+.stTextArea textarea::placeholder {
+    color: #bbb !important;
+    opacity: 1 !important;
 }
 
 /* ── ヒソヒソくんメッセージ（条件付き出現） ── */
@@ -298,6 +303,7 @@ def build_copy_button_html(copy_text: str, label: str = "クリップボード�
         .replace("\n", "\\n")
     )
     return f"""
+    <meta name="color-scheme" content="light">
     <button onclick="navigator.clipboard.writeText('{js_text}').then(() => {{
             this.textContent = 'コピーしました！ ✅';
             setTimeout(() => this.textContent = '{label}', 2000);
