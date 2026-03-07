@@ -256,7 +256,7 @@ def build_hanko_html(stamp_text: str) -> str:
 
 
 # ---- コピーボタンHTML生成 ----
-def build_copy_button_html(copy_text: str, label: str = "クリップボードにコピー 📋") -> str:
+def build_copy_button_html(copy_text: str, label: str = "クリップボードにコピーしとく 📋") -> str:
     js_text = (
         copy_text
         .replace("\\", "\\\\")
