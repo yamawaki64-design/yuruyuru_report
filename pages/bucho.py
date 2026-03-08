@@ -1,6 +1,6 @@
 import base64
 import json
-import math
+import random
 import streamlit as st
 import streamlit.components.v1 as components
 from prompts.bucho_prompt import build_bucho_prompt
@@ -9,6 +9,10 @@ from utils.groq_client import call_groq_json
 # ---- 背景画像をbase64に変換 ----
 with open("assets/doodle_background_1600x900_soft_100kb.jpg", "rb") as _f:
     _bg_b64 = base64.b64encode(_f.read()).decode()
+
+# ---- ハンコ画像をbase64に変換 ----
+with open("assets/hanko.png", "rb") as _f:
+    _hanko_b64 = base64.b64encode(_f.read()).decode()
 
 # ---- ページ設定 ----
 st.set_page_config(
@@ -226,31 +230,15 @@ def build_result_html(fields: list, result: dict) -> str:
     return html
 
 
-# ---- ハンコHTML生成（桜8輪を周囲に配置） ----
-def build_hanko_html(stamp_text: str) -> str:
-    lines = stamp_text.replace("：", "<br>")
-    size = 135
-    radius = size / 2
-    blossom_px = 28
-    half_b = blossom_px / 2
-
-    petals = []
-    for i in range(8):
-        angle = math.radians(i * 45)
-        x = radius + radius * math.sin(angle) - half_b
-        y = radius - radius * math.cos(angle) - half_b
-        petals.append(
-            f'<span style="position:absolute;font-size:{blossom_px}px;'
-            f'top:{y:.1f}px;left:{x:.1f}px;line-height:1;">🌸</span>'
-        )
-
-    petals_html = "".join(petals)
+# ---- ハンコHTML生成（PNG画像・ランダム傾き） ----
+def build_hanko_html(img_b64: str, rotation_deg: float) -> str:
     return f"""
     <div class="hanko-wrapper">
-        <div style="position:relative;width:{size}px;height:{size}px;">
-            {petals_html}
-            <div class="hanko">{lines}</div>
-        </div>
+        <img src="data:image/png;base64,{img_b64}"
+             width="163" height="163"
+             style="transform: rotate({rotation_deg:.1f}deg);
+                    animation: hanko-stamp 0.5s ease-out forwards;
+                    display: block;" />
     </div>
     """
 
@@ -302,6 +290,9 @@ if "bucho_comment" not in st.session_state:
             bucho_result = call_groq_json(system_prompt, report_text)
             st.session_state["bucho_comment"] = bucho_result.get("comment", "…うむ、承認だ。")
             st.session_state["bucho_stamp"] = bucho_result.get("stamp", "承認：プルプル部長")
+            # ハンコの傾き：左右どちらかにランダムで5〜15度
+            sign = random.choice([-1, 1])
+            st.session_state["hanko_rotation"] = sign * random.uniform(5, 15)
         except Exception as e:
             st.error(f"部長の呼び出しに失敗しました：{e}")
             st.stop()
@@ -321,7 +312,7 @@ with col_left:
 
 with col_right:
     st.markdown(
-        build_hanko_html(st.session_state["bucho_stamp"]),
+        build_hanko_html(_hanko_b64, st.session_state["hanko_rotation"]),
         unsafe_allow_html=True,
     )
 

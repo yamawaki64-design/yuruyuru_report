@@ -1,4 +1,4 @@
-ゆるゆる報告書　引継ぎ資料 v3.0
+ゆるゆる報告書　引継ぎ資料 v3.1
 2026年3月　実装完了版
 
 ## 1. アプリのコンセプト
@@ -45,7 +45,8 @@ yuruyuru_report/
 │   └── time_context.py           # 時間・曜日コンテキスト判定
 │
 ├── assets/
-│   └── doodle_background_1600x900_soft_100kb.jpg  # 背景画像
+│   ├── doodle_background_1600x900_soft_100kb.jpg  # 背景画像
+│   └── hanko.png                                  # ハンコ画像（163×163px推奨・背景透明PNG）
 │
 ├── .streamlit/
 │   ├── secrets.toml              # APIキー管理（GitHubには上げない）
@@ -194,7 +195,9 @@ Yes/Noのみ返す。トークン節約・判定ブレ防止。
 - メモに人名があれば必ず反応する（知ってるかどうかは関係ない）
 - ケチをつけるが最終的には必ず承認する
 - ケチのネタ：ひらがな・句読点・文字数・改行・カタカナ英語
-- 雑談ネタ：ゴルフ・昔の接待文化・バブル時代・最近の若者への愚痴
+- 雑談ネタ：ゴルフのスコア・昔の接待文化・バブル時代
+- 口調：〜じゃ、〜じゃのう、〜じゃわいなど柔らかい口調。命令形は使わない。部下を心配している。
+- 武勇伝の内容は仕事・ゴルフ・接待・残業に限定。性的な内容は絶対に含めない。
 - 18時以降・休日はコンプライアンスに配慮（ギャップ演出）
 
 ### 8-2. ヒソヒソくん 🐰
@@ -278,6 +281,7 @@ Yes/Noのみ返す。トークン節約・判定ブレ防止。
 - 背景：#FFFDE7、ボーダー：#FFD54F
 - `caret-color: #333` と `::placeholder { color: #bbb; opacity: 1 }` を明示（iOS Safari ダークモード対策）
 - **`key="memo_text"` を使用**（`value=` は使わない）。`value=` を毎回渡すと再レンダリング時にコピペ内容が上書き消滅する問題があるため
+- **ページ遷移をまたいだ入力内容の保持**：`st.switch_page` でページを切り替えるとウィジェットキーに紐づく session_state がクリアされる。そのため部長ページへ遷移する直前（app.py）に `memo_backup` キーへ退避し、app.py 初期化時に `memo_text` がなければ `memo_backup` から復元（`pop` で使い捨て）
 
 ### 整形結果パネル（バインダー風）
 - `::before`：クリップのワイヤー部分（border: 3px solid #757575）
@@ -285,9 +289,10 @@ Yes/Noのみ返す。トークン節約・判定ブレ防止。
 - 値の改行表示：HTMLエスケープ後に `.replace("\n", "<br>")` を適用（備考の複数行が正しく表示される）
 
 ### ハンコ（部長ページ）
-- 円形・朱色・かすれ風（opacity + filter: blur(0.4px)）
-- `math.radians()` + `sin/cos` で🌸を8方向（45°間隔）に配置
-- アニメーション：scale 1.3 → 0.95 → 1.0 で着地
+- `assets/hanko.png`（背景透明PNG・163×163px推奨）を base64 で読み込み `<img>` タグで表示
+- 傾き：セッション初回（部長コメント取得時）に `random.choice([-1, 1]) * random.uniform(5, 15)` で左右どちらかに5〜15度ランダム決定、`hanko_rotation` として session_state に保存
+- CSS `transform: rotate(Xdeg)` を `<img>` に適用
+- アニメーション：scale 1.3 → 0.95 → 1.0 で着地（既存の `hanko-stamp` keyframesを流用）
 
 ### コピーボタン
 - `st.components.v1.html()` を使用（`st.markdown` ではJSが無効化される）
@@ -325,7 +330,7 @@ groq
 ## 13. デプロイ（Streamlit Cloud）
 - `requirements.txt` が必須（groqパッケージが自動インストールされる）
 - Secrets に `GROQ_KEY = "..."` を設定する
-- `assets/` フォルダごとGitHubにコミットすること（背景画像を含む）
+- `assets/` フォルダごとGitHubにコミットすること（背景画像・ハンコ画像を含む）
 - `.streamlit/secrets.toml` は `.gitignore` 済みでGitHubには上げない
 
 
