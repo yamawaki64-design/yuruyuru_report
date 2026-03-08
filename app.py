@@ -1,5 +1,6 @@
 import base64
 import json
+from datetime import datetime
 import streamlit as st
 import streamlit.components.v1 as components
 from prompts.prompt_builder import build_format_prompt, build_multiple_check_prompt
@@ -254,14 +255,19 @@ glossary = glossary_data["glossary"]
 
 
 # ---- ヒソヒソくん判定 ----
-def check_hisohiso(fields: list, result: dict, is_multiple: bool) -> str | None:
+def check_hisohiso(fields: list, result: dict, is_multiple: bool) -> list[str]:
+    messages = []
     if is_multiple:
-        return "たくさんご要望がありますね。。（小声）"
+        messages.append("たくさんご要望がありますね。。（小声）")
     for field in fields:
-        if field.get("required") and not result.get(field["name"]):
-            name = field["name"]
-            return f"…✱の{name}、聞けましたか？（小声）"
-    return None
+        name = field["name"]
+        if name == "打合せ日" and not result.get(name):
+            today = datetime.now().strftime("%Y/%m/%d")
+            result["打合せ日"] = today
+            messages.append("…✱の打合せ日、今日にしときました。確認お願いします（小声）")
+        elif field.get("required") and not result.get(name):
+            messages.append(f"…✱の{name}、聞けましたか？（小声）")
+    return messages
 
 
 # ---- 整形結果パネルHTML生成 ----
@@ -276,7 +282,7 @@ def build_result_html(fields: list, result: dict) -> str:
         req = " ✱" if field.get("required") else ""
         val = result.get(name, "")
         safe_val = (
-            val.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            val.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
             if val else ""
         )
         html += f"""
@@ -323,13 +329,14 @@ if "formatted_result" not in st.session_state:
 if "memo_text" not in st.session_state:
     st.session_state["memo_text"] = ""
 if "hisohiso_msg" not in st.session_state:
-    st.session_state["hisohiso_msg"] = None
+    st.session_state["hisohiso_msg"] = []
 
 # ---- ヒソヒソくんヘッダー ----
 st.markdown("""
 <div class="hisohiso-header">
     あの...さっきの会議でメモされてましたよね？<br>
-    僕のほうでまとめますので、メモをそのままコピペしてもらっていいですか？
+    僕のほうでまとめますので、メモをそのままコピペしてもらっていいですか？<br>
+    （ご依頼はひとつずつでお願いします）
 </div>
 """, unsafe_allow_html=True)
 
@@ -351,12 +358,11 @@ st.markdown("""
 # ---- 入力欄 ----
 memo = st.text_area(
     label="メモ入力",
-    value=st.session_state["memo_text"],
+    key="memo_text",
     placeholder="例：田中商事の山田さんと面談。予算200万、来月提案予定。競合はA社が入ってるらしい。次回は見積持参。",
     height=320,
     label_visibility="collapsed",
 )
-st.session_state["memo_text"] = memo
 
 # ---- 整形ボタン（パネルの上） ----
 btn_pressed = st.button("🐰 メモをまとめますね", type="primary", use_container_width=True)
@@ -364,8 +370,9 @@ btn_pressed = st.button("🐰 メモをまとめますね", type="primary", use_
 # ---- ヒソヒソくんメッセージ（パネルの上・ボタンの下） ----
 hisohiso_placeholder = st.empty()
 if st.session_state["hisohiso_msg"]:
+    lines = "<br>".join(st.session_state["hisohiso_msg"])
     hisohiso_placeholder.markdown(
-        f'<div class="hisohiso-box">{st.session_state["hisohiso_msg"]}</div>',
+        f'<div class="hisohiso-box">{lines}</div>',
         unsafe_allow_html=True,
     )
 
@@ -395,12 +402,18 @@ if btn_pressed:
                 check_result = call_groq_json(check_prompt, memo)
                 is_multiple = check_result.get("is_multiple", False)
 
-                # ヒソヒソくん
-                hisohiso_msg = check_hisohiso(fields, result, is_multiple)
-                st.session_state["hisohiso_msg"] = hisohiso_msg
-                if hisohiso_msg:
+                # ヒソヒソくん（result を変更する場合があるので先に実行）
+                messages = check_hisohiso(fields, result, is_multiple)
+                st.session_state["hisohiso_msg"] = messages
+
+                # 打合せ日が自動補完された場合にパネルを再描画
+                with result_placeholder.container():
+                    st.markdown(build_result_html(fields, result), unsafe_allow_html=True)
+
+                if messages:
+                    lines = "<br>".join(messages)
                     hisohiso_placeholder.markdown(
-                        f'<div class="hisohiso-box">{hisohiso_msg}</div>',
+                        f'<div class="hisohiso-box">{lines}</div>',
                         unsafe_allow_html=True,
                     )
                 else:

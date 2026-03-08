@@ -214,7 +214,7 @@ def build_result_html(fields: list, result: dict) -> str:
         req = " ✱" if field.get("required") else ""
         val = result.get(name, "")
         safe_val = (
-            val.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            val.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
             if val else ""
         )
         html += f"""

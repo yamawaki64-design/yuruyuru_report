@@ -12,7 +12,9 @@ def build_format_prompt(fields: list, glossary: list) -> str:
     """
     output_template = {}
     for field in fields:
-        if "note" in field:
+        if field["name"] == "備考":
+            hint = "他のどの項目にも分類できなかった情報を、原文のまま・省略せずにすべて入れること。複数あれば改行で並べる。なければ空文字"
+        elif "note" in field:
             hint = field["note"]
         elif "options" in field:
             hint = "、".join(field["options"]) + " のいずれか。不明な場合は空文字"
@@ -35,6 +37,7 @@ def build_format_prompt(fields: list, glossary: list) -> str:
 【重要】
 - メモにない情報は補完・推測しないこと
 - 出力はJSONのみ。説明文・前置き・```は不要
+- 備考には、他の項目に収まらなかった情報をすべて原文に近い形で入れること。要約・省略禁止
 """
 
 

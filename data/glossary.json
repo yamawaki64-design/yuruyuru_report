@@ -1,3 +1,8 @@
 {
-  "glossary": []
+  "glossary": [
+    { "term": "1Q", "description": "第1四半期（4月〜6月）", "field": "導入希望時期" },
+    { "term": "2Q", "description": "第2四半期（7月〜9月）", "field": "導入希望時期" },
+    { "term": "3Q", "description": "第3四半期（10月〜12月）", "field": "導入希望時期" },
+    { "term": "4Q", "description": "第4四半期（1月〜3月）", "field": "導入希望時期" }
+  ]
 }

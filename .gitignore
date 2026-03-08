@@ -13,3 +13,7 @@ env/
 
 # VSCode
 .vscode/
+
+# mdファイル
+CLAUDE.md
+script_example.md
