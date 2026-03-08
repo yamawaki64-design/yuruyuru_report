@@ -310,6 +310,7 @@ def build_copy_button_html(copy_text: str, label: str = "クリップボード�
     )
     return f"""
     <meta name="color-scheme" content="light">
+    <style>body {{ margin: 0; padding: 0; }}</style>
     <button onclick="navigator.clipboard.writeText('{js_text}').then(() => {{
             this.textContent = 'コピーしました！ ✅';
             setTimeout(() => this.textContent = '{label}', 2000);
