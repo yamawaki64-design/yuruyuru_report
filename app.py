@@ -327,7 +327,8 @@ def build_copy_button_html(copy_text: str, label: str = "クリップボード�
 if "formatted_result" not in st.session_state:
     st.session_state["formatted_result"] = None
 if "memo_text" not in st.session_state:
-    st.session_state["memo_text"] = ""
+    # 部長ページから戻った場合はバックアップから復元
+    st.session_state["memo_text"] = st.session_state.pop("memo_backup", "")
 if "hisohiso_msg" not in st.session_state:
     st.session_state["hisohiso_msg"] = []
 
@@ -436,4 +437,5 @@ with col1:
 
 with col2:
     if st.button("プルプル部長に見せてみる🐼", disabled=not st.session_state.get("formatted_result"), use_container_width=True):
+        st.session_state["memo_backup"] = st.session_state.get("memo_text", "")
         st.switch_page("pages/bucho.py")

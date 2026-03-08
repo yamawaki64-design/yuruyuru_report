@@ -10,7 +10,7 @@ def get_time_context() -> str | None:
     is_weekend = now.weekday() >= 5  # 5=土, 6=日
 
     if is_weekend:
-        return "今日は休日です"
+        return "今日は休日なんだからこれ終わったら休んで。"
     elif now.hour >= 18:
-        return "今は18時以降です"
+        return f"もう{now.hour}時だ。定時も過ぎてるし早く帰るように。"
     return None
