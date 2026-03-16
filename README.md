@@ -114,7 +114,7 @@ yuruyuru_report/
 
 ```bash
 # 1. リポジトリをクローン
-git clone https://github.com/<your-username>/yuruyuru_report.git
+git clone https://github.com/yamawaki64-design/yuruyuru_report.git
 cd yuruyuru_report
 
 # 2. 依存パッケージをインストール
